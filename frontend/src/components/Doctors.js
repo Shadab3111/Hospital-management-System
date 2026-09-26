@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, FileText, User, Users, ChevronDown, Home, UserCircle, Calendar as CalendarIcon, Eye, EyeOff, Hospital, Stethoscope } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../config';
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => (
   <button
@@ -44,7 +45,7 @@ const CardFooter = ({ children }) => (
 
 const Input = ({ ...props }) => (
   <input
-    className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-1 h-6"
+    className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-3 py-2"
     {...props}
   />
 );
@@ -104,9 +105,10 @@ export default function DoctorDashboard() {
     if (!patientId) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/doctor/prescriptions/${patientId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/doctor/prescriptions/${patientId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -129,9 +131,10 @@ export default function DoctorDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/doctor/profile', {
+      const response = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -153,14 +156,15 @@ export default function DoctorDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/doctor/patients-with-appointments', {
+      const response = await fetch(`${API_BASE_URL}/api/doctor/patients-with-appointments`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Patients with appointments:', data); // Add this line for debugging
+        console.log('Patients with appointments:', data);
         setPatients(data);
       } else {
         console.error('Failed to fetch patients with appointments');
@@ -177,15 +181,15 @@ export default function DoctorDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/doctor/appointments', {
+      const response = await fetch(`${API_BASE_URL}/api/doctor/appointments`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
         const data = await response.json();
         const now = new Date();
-        // Filter and sort appointments by date and time in ascending order
         const sortedAppointments = data
           .filter(appointment => new Date(appointment.date) > now || (new Date(appointment.date).toLocaleDateString() === now.toLocaleDateString() && appointment.time > now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })))
           .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
@@ -343,11 +347,12 @@ export default function DoctorDashboard() {
     const handleSave = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/doctor/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
           },
           body: JSON.stringify(editedInfo)
         });
@@ -472,9 +477,10 @@ export default function DoctorDashboard() {
       if (!patientId || !date) return;
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5000/api/doctor/available-slots?patientId=${patientId}&date=${date}`, {
+        const response = await fetch(`${API_BASE_URL}/api/doctor/available-slots?patientId=${patientId}&date=${date}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
           }
         });
         if (response.ok) {
@@ -505,10 +511,11 @@ export default function DoctorDashboard() {
       if (window.confirm('Are you sure you want to delete this prescription?')) {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:5000/api/doctor/prescriptions/${prescriptionId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/doctor/prescriptions/${prescriptionId}`, {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'ngrok-skip-browser-warning': 'true'
             }
           });
           if (response.ok) {
@@ -517,11 +524,9 @@ export default function DoctorDashboard() {
           } else {
             const errorData = await response.json();
             alert(`Failed to delete prescription: ${errorData.error}`);
-            console.error('Error details:', errorData.details);
           }
         } catch (error) {
           alert('Error deleting prescription. Please try again.');
-          console.error('Error deleting prescription:', error);
         }
       }
     };
@@ -532,14 +537,15 @@ export default function DoctorDashboard() {
         try {
           const token = localStorage.getItem('token');
           const url = appointmentData.prescriptionId
-            ? `http://localhost:5000/api/doctor/prescriptions/${appointmentData.prescriptionId}`
-            : 'http://localhost:5000/api/doctor/prescribe-medication';
+            ? `${API_BASE_URL}/api/doctor/prescriptions/${appointmentData.prescriptionId}`
+            : `${API_BASE_URL}/api/doctor/prescribe-medication`;
           const method = appointmentData.prescriptionId ? 'PUT' : 'POST';
           const response = await fetch(url, {
             method,
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'ngrok-skip-browser-warning': 'true'
             },
             body: JSON.stringify({
               patientId: appointmentData.patientId,
@@ -549,7 +555,6 @@ export default function DoctorDashboard() {
             })
           });
           if (response.ok) {
-            const result = await response.json();
             alert(appointmentData.prescriptionId ? 'Medication updated successfully' : 'Medication prescribed successfully');
             setAppointmentData({
               ...appointmentData,
@@ -570,11 +575,12 @@ export default function DoctorDashboard() {
       } else if (selectedAction === 'schedule-appointment') {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch('http://localhost:5000/api/doctor/schedule-appointment', {
+          const response = await fetch(`${API_BASE_URL}/api/doctor/schedule-appointment`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'ngrok-skip-browser-warning': 'true'
             },
             body: JSON.stringify({
               patientId: appointmentData.patientId,
@@ -699,7 +705,12 @@ export default function DoctorDashboard() {
           <Hospital className="h-6 w-6 text-blue-600" />
           <span className="font-bold text-xl">Hospital Management System</span>
         </div>
-        <Button variant="outline" onClick={() => navigate('/')}>Sign Out</Button>
+        <Button variant="outline" onClick={() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userEmail');
+          navigate('/');
+        }}>Sign Out</Button>
       </header>
       <nav className="bg-blue-700 text-white p-4">
         <ul className="flex space-x-4 justify-center">

@@ -2,7 +2,7 @@ const express = require('express');
 const Doctor = require('../models/Doctor');
 const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Appointment = require('../models/Appointment');
 
@@ -77,14 +77,17 @@ router.get('/profile', auth, async (req, res) => {
 
 router.put('/profile', auth, async (req, res) => {
   try {
-    const { firstName, lastName, email } = req.body;
+    const { firstName, lastName, email, profileImage } = req.body;
     const admin = await Admin.findById(req.user.id);
     if (!admin) {
       return res.status(404).send({ error: 'Admin not found' });
     }
-    admin.firstName = firstName;
-    admin.lastName = lastName;
-    admin.email = email;
+    admin.firstName = firstName || admin.firstName;
+    admin.lastName = lastName || admin.lastName;
+    admin.email = email || admin.email;
+    if (profileImage !== undefined) {
+      admin.profileImage = profileImage;
+    }
     await admin.save();
     const adminWithoutPassword = admin.toObject();
     delete adminWithoutPassword.password;

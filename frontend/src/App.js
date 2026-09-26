@@ -9,6 +9,8 @@ import Doctor from './components/Doctors';
 import Admin from './components/Admins';
 import DoctorSignUp from './components/DoctorSignUp';
 import AdminSignUp from './components/AdminSignUp';
+import ForgotPassword from './components/ForgotPassword';
+import AIAssistant from './components/AIAssistant';
 
 function App() {
   return (
@@ -16,16 +18,17 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
-          
-    <Route path="/doctor/signup" element={<DoctorSignUp />} />
+          <Route path="/doctor/signup" element={<DoctorSignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/admin/signup" element={<AdminSignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/patient" element={<Patient />} />
           <Route path="/doctor" element={<Doctor />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <AIAssistant />
       </div>
     </Router>
   );

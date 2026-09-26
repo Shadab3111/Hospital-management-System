@@ -1,5 +1,8 @@
 {
-  "appId": "com.example.app",
-  "appName": "App",
-  "webDir": "www"
+  "appId": "com.shadab.hospitalmanagementsystem",
+  "appName": "hospital management system",
+  "webDir": "frontend/build",
+  "server": {
+    "cleartext": true
+  }
 }

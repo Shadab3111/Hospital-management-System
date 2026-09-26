@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, FileText, User, Users, ChevronDown, Home, UserCircle, Calendar as CalendarIcon, Eye, EyeOff, Hospital } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../config';
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => (
   <button
@@ -45,7 +46,7 @@ const CardFooter = ({ children }) => (
 
 const Input = ({ ...props }) => (
   <input
-    className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-1 h-6"
+    className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-3 py-2"
     {...props}
   />
 );
@@ -100,9 +101,10 @@ export default function PatientDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/patient/profile', {
+      const response = await fetch(`${API_BASE_URL}/api/patient/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -124,9 +126,10 @@ export default function PatientDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/doctor/all', {
+      const response = await fetch(`${API_BASE_URL}/api/doctor/all`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -144,9 +147,10 @@ export default function PatientDashboard() {
     if (!doctorId || !date) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/patient/available-slots?doctorId=${doctorId}&date=${date}`, {
+      const response = await fetch(`${API_BASE_URL}/api/patient/available-slots?doctorId=${doctorId}&date=${date}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -167,14 +171,15 @@ export default function PatientDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/patient/appointments', {
+      const response = await fetch(`${API_BASE_URL}/api/patient/appointments`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched appointments:', data); // Add this line for debugging
+        console.log('Fetched appointments:', data);
         setAppointments(data);
       } else {
         console.error('Failed to fetch appointments');
@@ -191,9 +196,10 @@ export default function PatientDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/patient/care-team', {
+      const response = await fetch(`${API_BASE_URL}/api/patient/care-team`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -214,9 +220,10 @@ export default function PatientDashboard() {
         navigate('/login');
         return;
       }
-      const response = await fetch('http://localhost:5000/api/patient/prescriptions', {
+      const response = await fetch(`${API_BASE_URL}/api/patient/prescriptions`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         }
       });
       if (response.ok) {
@@ -370,11 +377,12 @@ export default function PatientDashboard() {
     const handleSave = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/patient/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/patient/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
           },
           body: JSON.stringify(editedInfo)
         });
@@ -461,11 +469,12 @@ export default function PatientDashboard() {
       e.preventDefault();
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/patient/book-appointment', {
+        const response = await fetch(`${API_BASE_URL}/api/patient/book-appointment`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
           },
           body: JSON.stringify(appointmentData)
         });
@@ -537,7 +546,12 @@ export default function PatientDashboard() {
           <Hospital className="h-6 w-6 text-blue-600" />
           <span className="font-bold text-xl">Hospital Management System</span>
         </div>
-        <Button variant="outline" onClick={() => navigate('/')}>Sign Out</Button>
+        <Button variant="outline" onClick={() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userEmail');
+          navigate('/');
+        }}>Sign Out</Button>
       </header>
       <nav className="bg-blue-700 text-white p-4">
         <ul className="flex space-x-4 justify-center">

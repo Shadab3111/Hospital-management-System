@@ -3,37 +3,45 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken'); 
-const User = require('../models/User'); // Agar aapke model ka naam kuch aur hai toh check kar lein
+const User = require('../models/User');
+const Doctor = require('../models/Doctor');
+const Admin = require('../models/Admin');
 
 router.post('/', async (req, res) => {
     const { email, password, role } = req.body;
 
-    console.log('Received data:', req.body);
+    console.log('Received login request:', { email, role });
 
     try {
-        // 1. User ko email aur role dono se dhoodhein
-        const user = await User.findOne({ email, role });
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid email or role' });
+        let user;
+        if (role === 'doctor') {
+            user = await Doctor.findOne({ email });
+        } else if (role === 'admin') {
+            user = await Admin.findOne({ email });
+        } else {
+            user = await User.findOne({ email, role: 'patient' });
         }
 
-        // 2. Password match karein
+        if (!user) {
+            console.log('Login failed: User not found for email and role');
+            return res.status(400).json({ error: 'Invalid email or role selection' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            console.log('Login failed: Password mismatch');
             return res.status(400).json({ error: 'Invalid password' });
         }
 
-        // 3. JWT Token generate karein (Yahan 'token' define ho raha hai)
         const token = jwt.sign(
-            { id: user._id, role: user.role },
-            'your_jwt_secret', // Aapka secret key
-            { expiresIn: '24h' }
+            { id: user._id, role: user.role || role },
+            'your_jwt_secret',
+            { expiresIn: '30d' } // Extended to 30 days for persistent login
         );
 
-        // 4. Response bhein (Ab token undefined nahi bolega)
         return res.json({
             token: token,
-            role: user.role,
+            role: user.role || role,
             message: "Login successful!"
         });
 
